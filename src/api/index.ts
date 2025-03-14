@@ -19,7 +19,7 @@ const transcriptionService = new TranscriptionService();
 const telexService = new TelexService();
 
 app.post(
-  "/start-meeting",
+  "/join-meeting",
   async (req: express.Request, res: express.Response) => {
     try {
       const { meetingId, passcode, botName } = req.body;
