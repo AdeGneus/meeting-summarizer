@@ -1,7 +1,7 @@
 # Use Node.js 20 as the base image
 FROM node:20-slim
 
-# Install dependencies for Puppeteer/Chromium
+# Install dependencies for Puppeteer/Chromium, audio capture, and transcription tools
 RUN apt-get update && apt-get install -y \
   wget \
   ca-certificates \
@@ -28,10 +28,25 @@ RUN apt-get update && apt-get install -y \
   libappindicator3-1 \
   libnspr4 \
   lsb-release \
-  --no-install-recommends && \
-  rm -rf /var/lib/apt/lists/*
+  ffmpeg \
+  xvfb \
+  pulseaudio \
+  python3 \
+  python3-pip \
+  python3-venv \
+  && rm -rf /var/lib/apt/lists/*
 
-# Set the working directory
+# Set up Python virtual environment
+RUN python3 -m venv /opt/whisper-env
+RUN /opt/whisper-env/bin/pip install --upgrade pip
+
+# Install Whisper (Python package) in the virtual environment
+RUN /opt/whisper-env/bin/pip install openai-whisper
+
+# Ensure whisper is available in the system path
+ENV PATH="/opt/whisper-env/bin:$PATH"
+
+# Set the working directory for Node.js app
 WORKDIR /usr/src/app
 
 # Copy package.json and yarn.lock (if present)
